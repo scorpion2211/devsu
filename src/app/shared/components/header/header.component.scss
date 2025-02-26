@@ -1,0 +1,27 @@
+@import '../../../../styles.scss';
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-white;
+  padding: 25px;
+  color: $color-primary;
+}
+.title {
+  margin: 0;
+  font-size: 30px;
+  cursor: pointer;
+  i {
+    margin-right: 10px;
+  }
+}
+@media screen and (max-width: $breackpoint-cel) {
+  .header {
+    padding: 15px;
+  }
+  .title {
+    font-size: 26px;
+  }
+}

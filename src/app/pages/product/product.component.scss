@@ -1,0 +1,124 @@
+@import '../../../styles.scss';
+
+.form {
+  width: 100%;
+  max-width: 750px;
+  margin: auto;
+  position: relative;
+  background-color: $color-white;
+  &__title {
+    padding: 35px 25px;
+    text-align: center;
+    font-size: 28px;
+    border-bottom: solid 1px $color-gray;
+  }
+}
+
+.extra-options {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  max-width: 750px;
+  margin: auto;
+  z-index: 10;
+  &-btn {
+    border: none;
+    width: 30px;
+    height: 30px;
+    background-color: $color-white;
+    color: $color-black-secondary;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      width: 130px;
+      cursor: pointer;
+      background-color: $color-primary;
+      color: $color-white;
+    }
+    i {
+      transform: scaleX(-1);
+      filter: FlipH;
+    }
+    &__text {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      color: $color-white;
+    }
+  }
+}
+
+.extra-options-btn:hover .extra-options-btn__text {
+  display: flex;
+  opacity: 1;
+}
+.extra-options-btn:hover i {
+  display: none;
+}
+
+.data {
+  padding: 25px 35px 35px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 13px;
+  height: 85px;
+  &__label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  &__text-invalid {
+    color: $color-red;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  &--disabled {
+    background-color: $color-disabled;
+    color: $color-gray;
+  }
+  &--invalid {
+    border: solid 1px $color-red !important; /*the general input class of styles.scss is overwritten*/
+    &:focus {
+      outline: solid 1px $color-red !important; /*the general input class of styles.scss is overwritten*/
+    }
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: auto;
+  width: 100%;
+  app-button {
+    margin: 15px 30px;
+  }
+}
+
+@media screen and (max-width: $breackpoint-cel) {
+  .form {
+    &__title {
+      padding: 15px;
+      font-size: 22px;
+    }
+  }
+
+  .data {
+    padding: 25px 35px 25px;
+  }
+  .form-group {
+    height: 70px;
+    &__text-invalid {
+      font-size: 10px;
+      margin-top: 3px;
+    }
+  }
+}
