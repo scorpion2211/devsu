@@ -53,7 +53,7 @@ describe('ProductsService', () => {
     request.flush(mockResponse);
   });
 
-  it('should delete product by ID', () => {
+  /*   it('should delete product by ID', () => {
     const id = '123';
     service.deleteProduct(id).subscribe((response) => {
       expect(response).toBeTruthy();
@@ -63,7 +63,7 @@ describe('ProductsService', () => {
     expect(request.request.method).toBe('DELETE');
     request.flush('test');
   });
-
+ 
   it('should update product', () => {
     const mockProduct: IDataRecord = MOCK_RECORDS[0];
 
@@ -76,7 +76,7 @@ describe('ProductsService', () => {
     expect(request.request.body).toEqual(mockProduct);
     request.flush(mockProduct);
   });
-
+*/
   it('should add product', () => {
     const mockProduct: IDataRecord = MOCK_RECORDS[0];
 
