@@ -142,7 +142,7 @@ describe('HomeComponent', () => {
 
   it('should load products', fakeAsync(() => {
     const mockProducts = MOCK_RECORDS.slice(0, 2);
-    spyOn(productsService, 'getProducts').and.returnValue(of(mockProducts));
+    spyOn(productsService, 'getProducts').and.returnValue(of({ data: mockProducts }));
     spyOn(productsService, 'removeAllProducts').and.stub();
     spyOn(message$, 'next').and.stub();
     component.loadProducts();

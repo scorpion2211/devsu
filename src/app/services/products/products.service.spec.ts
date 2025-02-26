@@ -31,8 +31,8 @@ describe('ProductsService', () => {
     const mockProducts: IDataRecord[] = [MOCK_RECORDS[2], MOCK_RECORDS[1]];
 
     service.getProducts().subscribe((products) => {
-      expect(products.length).toBe(2);
-      expect(products).toEqual(mockProducts);
+      expect(products.data.length).toBe(2);
+      expect(products).toEqual({ data: mockProducts });
     });
 
     const request = httpMock.expectOne(`${environment.urlApi}/bp/products`);
@@ -48,7 +48,7 @@ describe('ProductsService', () => {
       expect(exist).toBe(mockResponse);
     });
 
-    const request = httpMock.expectOne(`${environment.urlApi}/bp/products/verification?id=${id}`);
+    const request = httpMock.expectOne(`${environment.urlApi}/bp/products/verification/${id}`);
     expect(request.request.method).toBe('GET');
     request.flush(mockResponse);
   });
@@ -59,7 +59,7 @@ describe('ProductsService', () => {
       expect(response).toBeTruthy();
     });
 
-    const request = httpMock.expectOne(`${environment.urlApi}/bp/products?id=${id}`);
+    const request = httpMock.expectOne(`${environment.urlApi}/bp/products/${id}`);
     expect(request.request.method).toBe('DELETE');
     request.flush('test');
   });
