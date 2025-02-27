@@ -68,13 +68,6 @@ export class HomeComponent implements OnInit {
            */
           //this.productsService.removeAllProducts(data);
         },
-        error: (error) => {
-          message$.next({
-            description: 'Ocurrió un error al cargar los productos',
-            type: EAlertType.ERROR,
-          });
-          console.error('Error', error);
-        },
         complete: () => {
           /**
            * A timer is set so that the skeleton for the exercise can be appreciated
@@ -133,15 +126,6 @@ export class HomeComponent implements OnInit {
             });
             this.searchTerm = '';
             this.loadProducts();
-          },
-          error: (error) => {
-            this.showModalConfirm = false;
-            this.loadingService.loading$.next(false);
-            message$.next({
-              description: `Ocurrió un error al eliminar el producto: ${item.name}`,
-              type: EAlertType.ERROR,
-            });
-            console.error('Error', error);
           },
           complete: () => {
             this.itemSelected = null;

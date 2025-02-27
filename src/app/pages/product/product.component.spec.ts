@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ProductComponent } from './product.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -16,19 +16,24 @@ describe('ProductComponent', () => {
   let component: ProductComponent;
   let fixture: ComponentFixture<ProductComponent>;
   let loadingService: LoadingService;
+  let productsService: any;
 
   beforeEach(async () => {
     const editableProductSubject = new BehaviorSubject<IDataRecord | null>(null);
-    const productServiceSpyObj = jasmine.createSpyObj('ProductsService', {
-      addProduct: jasmine.createSpy(),
-      verifyID: jasmine.createSpy(),
-      updateProduct: jasmine.createSpy(),
-      editableProduct$: new BehaviorSubject<IDataRecord | null>(null),
-    });
+
+    const productServiceSpyObj = jasmine.createSpyObj('ProductsService', [
+      'addProduct',
+      'verifyID',
+      'updateProduct',
+    ]);
 
     productServiceSpyObj.editableProduct$ = editableProductSubject.asObservable();
 
+    productServiceSpyObj.addProduct.and.returnValue(of(MOCK_RECORDS[0]));
     productServiceSpyObj.verifyID.and.returnValue(of(true));
+    productServiceSpyObj.updateProduct.and.returnValue(of(MOCK_RECORDS[0]));
+
+    productsService = productServiceSpyObj;
 
     await TestBed.configureTestingModule({
       declarations: [ProductComponent],
@@ -65,22 +70,15 @@ describe('ProductComponent', () => {
 
   it('should initialize form', () => {
     component.initializeForm();
-
     expect(component.productForm).toBeDefined();
   });
 
   it('should load editable product', () => {
     const productData: IDataRecord | null = null;
-    const editableProductSubject = new BehaviorSubject<IDataRecord | null>(null);
-    const productServiceSpyObj = {
-      addProduct: jasmine.createSpy(),
-      verifyID: jasmine.createSpy(),
-      updateProduct: jasmine.createSpy(),
-      editableProduct$: editableProductSubject,
-    };
+    const editableProductSubject = new BehaviorSubject<IDataRecord | null>(productData);
+    productsService.editableProduct$ = editableProductSubject.asObservable();
 
-    productServiceSpyObj.editableProduct$.next(productData);
-
+    editableProductSubject.next(productData);
     component.loadEditableProduct();
 
     expect(component.getProductData()).toEqual(productData);
@@ -89,38 +87,49 @@ describe('ProductComponent', () => {
   it('should populate form with data', () => {
     const productData: IDataRecord = MOCK_RECORDS[0];
     component.populateFormWithData(productData);
-
     expect(component.productForm.value).toEqual(productData);
   });
 
   it('should fix date', () => {
     const date_release = '2024-05-01';
     const date_revision = '2025-05-01';
+    component.initializeForm();
     component.fixDate(date_release, date_revision);
+    const dateReleaseControl = component.productForm.get('date_release');
+    const dateRevisionControl = component.productForm.get('date_revision');
+    expect(dateReleaseControl?.value).toBe(new Date(date_release).toISOString().split('T')[0]);
+    expect(dateRevisionControl?.value).toBe(new Date(date_revision).toISOString().split('T')[0]);
   });
 
-  it('should submit form', () => {
+  it('should submit form in add mode', fakeAsync(() => {
     spyOn(component, 'resetForm').and.callThrough();
-
     component.isEditMode = false;
+    component.initializeForm();
     component.productForm.setValue(MOCK_RECORDS[0]);
-
+    productsService.verifyID.and.returnValue(of(false));
     component.onSubmit();
-    expect(component.submitted).toBeTrue();
+    tick(100);
+    expect(component.resetForm).toHaveBeenCalled();
+  }));
 
-    expect(component.resetForm).not.toHaveBeenCalled();
-
-    setTimeout(() => {
-      expect(component.resetForm).toHaveBeenCalled();
-    }, 1000);
-  });
+  it('should submit form in edit mode', fakeAsync(() => {
+    spyOn(component, 'resetForm').and.callThrough();
+    component.isEditMode = true;
+    component._productData = MOCK_RECORDS[0];
+    component.initializeForm();
+    component.productForm.setValue(MOCK_RECORDS[0]);
+    component.onSubmit();
+    tick(100);
+    expect(component.resetForm).toHaveBeenCalled();
+  }));
 
   it('should show alert when trying to edit existing product ID', () => {
     const alertServiceSpy = spyOn(message$, 'next');
-
     component.isEditMode = true;
     component._productData = MOCK_RECORDS[0];
+
     const data = { ...MOCK_RECORDS[0], id: 'test1' };
+    component.initializeForm();
     component.productForm.setValue(data);
 
     component.onSubmit();
@@ -129,8 +138,7 @@ describe('ProductComponent', () => {
       description: `No se permite editar el ID de un producto existente`,
       type: EAlertType.INFO,
     });
-
-    expect(component.productForm.get('id')?.value).toBe('esMuuS');
+    expect(component.productForm.get('id')?.value).toBe(MOCK_RECORDS[0].id);
   });
 
   it('should return form controls', () => {

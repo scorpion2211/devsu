@@ -13,7 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'src/app/shared/components/button/button.module';
 import { IDataRecord } from 'src/app/shared/utils/records.interface';
 import { MOCK_RECORDS } from 'src/app/shared/utils/mocks';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 import { Router } from '@angular/router';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
@@ -112,34 +112,6 @@ describe('HomeComponent', () => {
     expect(routerSpy).toHaveBeenCalledWith('/product/edit');
   });
 
-  it('should handle error when deleting product', () => {
-    const item: IDataRecord = {
-      id: '1',
-      name: 'Product 1',
-      description: 'Description 1',
-      logo: 'logo1.png',
-      date_release: '2024-05-01',
-      date_revision: '2024-05-02',
-    };
-    spyOn(productsService, 'verifyID').and.returnValue(of(true));
-    spyOn(productsService, 'deleteProduct').and.returnValue(throwError('Error'));
-    spyOn(console, 'error');
-    const alertServiceSpy = spyOn(message$, 'next');
-    const loadingServiceSpy = spyOn(loadingService.loading$, 'next');
-
-    component.itemSelected = item;
-    component.deleteProduct();
-
-    expect(productsService.verifyID).toHaveBeenCalledWith(item.id);
-    expect(productsService.deleteProduct).toHaveBeenCalledWith(item.id);
-    expect(console.error).toHaveBeenCalled();
-    expect(alertServiceSpy).toHaveBeenCalledWith({
-      description: `Ocurrió un error al eliminar el producto: ${item.name}`,
-      type: EAlertType.ERROR,
-    });
-    expect(loadingServiceSpy).toHaveBeenCalledWith(false);
-  });
-
   it('should load products', fakeAsync(() => {
     const mockProducts = MOCK_RECORDS.slice(0, 2);
     spyOn(productsService, 'getProducts').and.returnValue(of({ data: mockProducts }));
@@ -149,19 +121,6 @@ describe('HomeComponent', () => {
     expect(productsService.getProducts).toHaveBeenCalled();
     tick(3000);
     expect(component.totalData).toEqual(mockProducts);
-  }));
-
-  it('should handle error when loading products', fakeAsync(() => {
-    const mockError = new Error('Failed to load products');
-    spyOn(productsService, 'getProducts').and.returnValue(throwError(mockError));
-    spyOn(message$, 'next').and.stub();
-    component.loadProducts();
-    expect(productsService.getProducts).toHaveBeenCalled();
-    tick(3000);
-    expect(message$.next).toHaveBeenCalledWith({
-      description: 'Ocurrió un error al cargar los productos',
-      type: EAlertType.ERROR,
-    });
   }));
 
   it('should sort data alphabetically by name when it equals', () => {

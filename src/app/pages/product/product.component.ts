@@ -173,14 +173,6 @@ export class ProductComponent implements OnInit, OnDestroy {
             type: EAlertType.SUCCESS,
           });
         },
-        error: (error) => {
-          this.loadingService.loading$.next(false);
-          message$.next({
-            description: `Ocurrió un error al actualizar el producto ${data.name}`,
-            type: EAlertType.ERROR,
-          });
-          console.error('Error', error);
-        },
         complete: () => {
           this.resetForm();
           this.loadingService.loading$.next(false);
@@ -210,14 +202,6 @@ export class ProductComponent implements OnInit, OnDestroy {
             type: EAlertType.SUCCESS,
           });
           this.resetForm();
-        },
-        error: (error) => {
-          this.loadingService.loading$.next(false);
-          message$.next({
-            description: `Ocurrió un error al agregar el producto ${data.name}`,
-            type: EAlertType.ERROR,
-          });
-          console.error('Error', error);
         },
         complete: () => {
           this.loadingService.loading$.next(false);

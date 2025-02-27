@@ -1,23 +1,31 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { HttpInterceptorInterceptor } from './http-interceptor.interceptor';
-import { Observable, throwError } from 'rxjs';
+import { Observable, of, throwError, Subject } from 'rxjs';
+import { LoadingService } from '../loading/loading.service';
+import { message$ } from 'src/app/shared/components/alert/alert.component';
+import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 describe('HttpInterceptorInterceptor', () => {
   let interceptor: HttpInterceptorInterceptor;
-  let nextHandler: HttpHandler;
+  let nextHandler: jasmine.SpyObj<HttpHandler>;
+  let loadingServiceMock: jasmine.SpyObj<LoadingService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [HttpInterceptorInterceptor],
+    loadingServiceMock = jasmine.createSpyObj('LoadingService', [], {
+      loading$: new Subject<boolean>(),
     });
+
+    TestBed.configureTestingModule({
+      providers: [
+        HttpInterceptorInterceptor,
+        { provide: LoadingService, useValue: loadingServiceMock },
+      ],
+    });
+
     interceptor = TestBed.inject(HttpInterceptorInterceptor);
-    nextHandler = {
-      handle: (): Observable<HttpEvent<any>> => {
-        return new Observable();
-      },
-    } as HttpHandler;
+    nextHandler = jasmine.createSpyObj<HttpHandler>('HttpHandler', ['handle']);
   });
 
   it('should be created', () => {
@@ -26,13 +34,14 @@ describe('HttpInterceptorInterceptor', () => {
 
   it('should intercept and add authorId header to the request', () => {
     const request = new HttpRequest('GET', '/api/data');
-    spyOn(nextHandler, 'handle').and.callThrough();
 
-    interceptor.intercept(request, nextHandler);
+    nextHandler.handle.and.returnValue(of({} as HttpEvent<any>));
+
+    interceptor.intercept(request, nextHandler).subscribe();
 
     expect(nextHandler.handle).toHaveBeenCalledOnceWith(jasmine.any(HttpRequest));
-    const modifiedRequest = (nextHandler.handle as jasmine.Spy).calls.mostRecent()
-      .args[0] as HttpRequest<any>;
+
+    const modifiedRequest = nextHandler.handle.calls.mostRecent().args[0] as HttpRequest<any>;
     expect(modifiedRequest.headers.get('authorId')).toEqual('96');
   });
 
@@ -40,28 +49,19 @@ describe('HttpInterceptorInterceptor', () => {
     const errorResponse = new HttpErrorResponse({
       status: 500,
       statusText: 'Internal Server Error',
+      error: JSON.stringify({ message: 'Server crashed' }),
     });
-    spyOn(console, 'log');
-    spyOn(nextHandler, 'handle').and.returnValue(throwError(errorResponse));
 
-    interceptor.intercept(new HttpRequest('GET', '/api/data'), nextHandler).subscribe({
-      error: () => {
-        expect(console.log).toHaveBeenCalledWith('Error al cargar Servicio', errorResponse);
-      },
-    });
-  });
-
-  it('should throw an error when handling HttpErrorResponse', () => {
-    const errorResponse = new HttpErrorResponse({
-      status: 500,
-      statusText: 'Internal Server Error',
-    });
-    spyOn(console, 'log');
-    spyOn(nextHandler, 'handle').and.returnValue(throwError(errorResponse));
+    spyOn(message$, 'next');
+    nextHandler.handle.and.returnValue(throwError(() => errorResponse));
 
     interceptor.intercept(new HttpRequest('GET', '/api/data'), nextHandler).subscribe({
       error: (error) => {
-        expect(error).toEqual('Error');
+        expect(error.message).toEqual('Server crashed');
+        expect(message$.next).toHaveBeenCalledWith({
+          description: 'Server crashed',
+          type: EAlertType.ERROR,
+        });
       },
     });
   });
