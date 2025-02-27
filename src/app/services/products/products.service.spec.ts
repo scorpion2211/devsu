@@ -37,7 +37,7 @@ describe('ProductsService', () => {
 
     const request = httpMock.expectOne(`${environment.urlApi}/bp/products`);
     expect(request.request.method).toBe('GET');
-    request.flush(mockProducts);
+    request.flush({ data: mockProducts });
   });
 
   it('should verify ID', () => {
@@ -53,17 +53,16 @@ describe('ProductsService', () => {
     request.flush(mockResponse);
   });
 
-  /*   it('should delete product by ID', () => {
+  it('should delete product by ID', () => {
     const id = '123';
     service.deleteProduct(id).subscribe((response) => {
-      expect(response).toBeTruthy();
+      expect(response).toBe('test');
     });
 
     const request = httpMock.expectOne(`${environment.urlApi}/bp/products/${id}`);
     expect(request.request.method).toBe('DELETE');
     request.flush('test');
   });
- 
   it('should update product', () => {
     const mockProduct: IDataRecord = MOCK_RECORDS[0];
 
@@ -71,12 +70,11 @@ describe('ProductsService', () => {
       expect(updatedProduct).toEqual(mockProduct);
     });
 
-    const request = httpMock.expectOne(`${environment.urlApi}/bp/products`);
+    const request = httpMock.expectOne(`${environment.urlApi}/bp/products/${mockProduct.id}`);
     expect(request.request.method).toBe('PUT');
     expect(request.request.body).toEqual(mockProduct);
     request.flush(mockProduct);
   });
-*/
   it('should add product', () => {
     const mockProduct: IDataRecord = MOCK_RECORDS[0];
 
