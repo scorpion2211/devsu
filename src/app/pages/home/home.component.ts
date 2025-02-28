@@ -6,8 +6,8 @@ import { ETypesButton } from 'src/app/shared/utils/type-button.enum';
 import { ESizeModal } from 'src/app/shared/utils/modal-size.enum';
 import { Router } from '@angular/router';
 import { of, switchMap, take } from 'rxjs';
-import { LoadingService } from 'src/app/services/loading/loading.service';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
+import { loading$ } from 'src/app/shared/components/loading/loading.component';
 
 @Component({
   selector: 'app-home',
@@ -29,7 +29,6 @@ export class HomeComponent implements OnInit {
   constructor(
     private productsService: ProductsService,
     public router: Router,
-    private loadingService: LoadingService,
   ) {}
 
   ngOnInit() {
@@ -42,13 +41,12 @@ export class HomeComponent implements OnInit {
   }
 
   debuggerActions(clear = false) {
-    this.loadingService.loading$.next(true);
+    loading$.next(true);
     clear && this.totalData.length > 0
       ? this.productsService.removeAllProducts(this.totalData)
       : this.productsService.pushRandomProducts();
 
     setTimeout(() => {
-      this.loadingService.loading$.next(false);
       this.loadProducts();
     }, 3000);
   }
@@ -61,19 +59,18 @@ export class HomeComponent implements OnInit {
         next: ({ data }) => {
           data = this.sortData(data);
           this.totalData = data;
-          this.isLoadingTable = false;
 
           /**
            * If you want to clear the list for some reason, uncomment the following line
            */
           //this.productsService.removeAllProducts(data);
-        },
-        complete: () => {
+
           /**
            * A timer is set so that the skeleton for the exercise can be appreciated
            */
           setTimeout(() => {
             this.isLoadingTable = false;
+            loading$.next(false);
           }, 2000);
         },
       });
@@ -101,7 +98,7 @@ export class HomeComponent implements OnInit {
 
   deleteProduct() {
     if (this.itemSelected) {
-      this.loadingService.loading$.next(true);
+      loading$.next(true);
       const item = { ...this.itemSelected };
       this.productsService
         .verifyID(item.id)
@@ -130,7 +127,6 @@ export class HomeComponent implements OnInit {
           complete: () => {
             this.itemSelected = null;
             this.showModalConfirm = false;
-            this.loadingService.loading$.next(false);
           },
         });
     }

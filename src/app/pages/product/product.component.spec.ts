@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { ProductComponent } from './product.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ActivatedRoute } from '@angular/router';
-import { LoadingService } from 'src/app/services/loading/loading.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { BehaviorSubject, of } from 'rxjs';
 import { IDataRecord } from 'src/app/shared/utils/records.interface';
@@ -11,11 +10,11 @@ import { ButtonModule } from 'src/app/shared/components/button/button.module';
 import { MOCK_RECORDS } from 'src/app/shared/utils/mocks';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
+import { loading$ } from 'src/app/shared/components/loading/loading.component';
 
 describe('ProductComponent', () => {
   let component: ProductComponent;
   let fixture: ComponentFixture<ProductComponent>;
-  let loadingService: LoadingService;
   let productsService: any;
 
   beforeEach(async () => {
@@ -39,7 +38,6 @@ describe('ProductComponent', () => {
       declarations: [ProductComponent],
       imports: [HttpClientTestingModule, ReactiveFormsModule, ButtonModule],
       providers: [
-        LoadingService,
         FormBuilder,
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'edit' } } } },
         { provide: ProductsService, useValue: productServiceSpyObj },
@@ -48,7 +46,6 @@ describe('ProductComponent', () => {
 
     fixture = TestBed.createComponent(ProductComponent);
     component = fixture.componentInstance;
-    loadingService = TestBed.inject(LoadingService);
     fixture.detectChanges();
   });
 
@@ -65,7 +62,7 @@ describe('ProductComponent', () => {
     expect(component.initializeForm).toHaveBeenCalled();
     expect(component.loadParams).toHaveBeenCalled();
     expect(component.isEditMode).toBeTrue();
-    expect(loadingService.loading$.value).toBeFalse();
+    expect(loading$.value).toBeFalse();
   });
 
   it('should initialize form', () => {

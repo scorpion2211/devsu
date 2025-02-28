@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpErrorResponse, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { HttpInterceptorInterceptor } from './http-interceptor.interceptor';
-import { Observable, of, throwError, Subject } from 'rxjs';
-import { LoadingService } from '../loading/loading.service';
+import { of, throwError, Subject } from 'rxjs';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 
@@ -10,18 +9,10 @@ import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 describe('HttpInterceptorInterceptor', () => {
   let interceptor: HttpInterceptorInterceptor;
   let nextHandler: jasmine.SpyObj<HttpHandler>;
-  let loadingServiceMock: jasmine.SpyObj<LoadingService>;
 
   beforeEach(() => {
-    loadingServiceMock = jasmine.createSpyObj('LoadingService', [], {
-      loading$: new Subject<boolean>(),
-    });
-
     TestBed.configureTestingModule({
-      providers: [
-        HttpInterceptorInterceptor,
-        { provide: LoadingService, useValue: loadingServiceMock },
-      ],
+      providers: [HttpInterceptorInterceptor],
     });
 
     interceptor = TestBed.inject(HttpInterceptorInterceptor);

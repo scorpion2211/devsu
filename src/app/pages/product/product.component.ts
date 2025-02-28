@@ -8,9 +8,9 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, of, switchMap, take } from 'rxjs';
-import { LoadingService } from 'src/app/services/loading/loading.service';
 import { ProductsService } from 'src/app/services/products/products.service';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
+import { loading$ } from 'src/app/shared/components/loading/loading.component';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 import { IDataRecord } from 'src/app/shared/utils/records.interface';
 import { ESizeButton, ETypesButton } from 'src/app/shared/utils/type-button.enum';
@@ -33,7 +33,6 @@ export class ProductComponent implements OnInit, OnDestroy {
     private productsService: ProductsService,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
-    private loadingService: LoadingService,
   ) {}
 
   ngOnDestroy(): void {
@@ -41,7 +40,7 @@ export class ProductComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadingService.loading$.next(true);
+    loading$.next(true);
     this.initializeForm();
     this.loadParams();
   }
@@ -88,7 +87,7 @@ export class ProductComponent implements OnInit, OnDestroy {
       }
       return;
     }
-    this.loadingService.loading$.next(false);
+    loading$.next(false);
   }
 
   loadEditableProduct() {
@@ -98,7 +97,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         this.populateFormWithData(data);
         this.fixDate(this._productData.date_release, this._productData.date_revision);
       }
-      this.loadingService.loading$.next(false);
+      loading$.next(false);
     });
   }
 
@@ -136,7 +135,7 @@ export class ProductComponent implements OnInit, OnDestroy {
     }
     this._productData = this.productForm.value as IDataRecord;
     if (this._productData) {
-      this.loadingService.loading$.next(true);
+      loading$.next(true);
       if (this.isEditMode) {
         this.editProcut(this._productData);
         return;
@@ -175,7 +174,7 @@ export class ProductComponent implements OnInit, OnDestroy {
         },
         complete: () => {
           this.resetForm();
-          this.loadingService.loading$.next(false);
+          loading$.next(false);
         },
       });
   }
@@ -202,9 +201,7 @@ export class ProductComponent implements OnInit, OnDestroy {
             type: EAlertType.SUCCESS,
           });
           this.resetForm();
-        },
-        complete: () => {
-          this.loadingService.loading$.next(false);
+          loading$.next(false);
         },
       });
   }

@@ -7,13 +7,12 @@ import {
   HttpErrorResponse,
 } from '@angular/common/http';
 import { Observable, catchError, throwError } from 'rxjs';
-import { LoadingService } from '../loading/loading.service';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
+import { loading$ } from 'src/app/shared/components/loading/loading.component';
 
 @Injectable()
 export class HttpInterceptorInterceptor implements HttpInterceptor {
-  constructor(private loadingService: LoadingService) {}
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const reqClone = request.clone({
       headers: request.headers.set('authorId', '96'),
@@ -22,7 +21,7 @@ export class HttpInterceptorInterceptor implements HttpInterceptor {
   }
 
   errorHandling(error: HttpErrorResponse) {
-    this.loadingService.loading$.next(false);
+    loading$.next(false);
     let message = 'Ocurrió un error inesperado';
     if (error.error && typeof error.error === 'string') {
       try {

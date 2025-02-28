@@ -3,7 +3,6 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HomeComponent } from './home.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ProductsService } from 'src/app/services/products/products.service';
-import { LoadingService } from 'src/app/services/loading/loading.service';
 import { ETypesButton } from 'src/app/shared/utils/type-button.enum';
 import { ESizeModal } from 'src/app/shared/utils/modal-size.enum';
 import { AppModule } from 'src/app/app.module';
@@ -17,11 +16,11 @@ import { of } from 'rxjs';
 import { EAlertType } from 'src/app/shared/utils/alert-type.enum';
 import { Router } from '@angular/router';
 import { message$ } from 'src/app/shared/components/alert/alert.component';
+import { loading$ } from 'src/app/shared/components/loading/loading.component';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
-  let loadingService: LoadingService;
   let productsService: ProductsService;
   let router: Router;
 
@@ -37,11 +36,10 @@ describe('HomeComponent', () => {
         FormsModule,
         ButtonModule,
       ],
-      providers: [ProductsService, LoadingService],
+      providers: [ProductsService],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
-    loadingService = TestBed.inject(LoadingService);
     productsService = TestBed.inject(ProductsService);
     router = TestBed.inject(Router);
     component = fixture.componentInstance;
@@ -149,22 +147,20 @@ describe('HomeComponent', () => {
 
   it('should set isLoadingTable to false after 4 seconds', fakeAsync(() => {
     spyOn(productsService, 'pushRandomProducts').and.stub();
-    const loadinSpy = spyOn(loadingService.loading$, 'next');
+    const loadinSpy = spyOn(loading$, 'next');
     component.debuggerActions();
     expect(loadinSpy).toHaveBeenCalledWith(true);
     expect(productsService.pushRandomProducts).toHaveBeenCalledWith();
     tick(3000);
-    expect(loadinSpy).toHaveBeenCalledWith(false);
   }));
 
   it('should remove all products', fakeAsync(() => {
     spyOn(productsService, 'removeAllProducts').and.stub();
-    const loadinSpy = spyOn(loadingService.loading$, 'next');
+    const loadinSpy = spyOn(loading$, 'next');
     component.totalData = MOCK_RECORDS;
     component.debuggerActions(true);
     expect(loadinSpy).toHaveBeenCalledWith(true);
     expect(productsService.removeAllProducts).toHaveBeenCalledWith(component.totalData);
     tick(3000);
-    expect(loadinSpy).toHaveBeenCalledWith(false);
   }));
 });

@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
-import { LoadingService } from '../../../services/loading/loading.service';
-import { Subscription } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 
+export const loading$ = new BehaviorSubject<boolean>(false);
 @Component({
   selector: 'app-loading',
   templateUrl: './loading.component.html',
@@ -11,8 +11,8 @@ export class LoadingComponent implements OnDestroy {
   public showLoading = false;
   private subscribe$ = new Subscription();
 
-  constructor(private loadingService: LoadingService) {
-    this.subscribe$ = this.loadingService.loading$.subscribe((show) => {
+  constructor() {
+    this.subscribe$ = loading$.subscribe((show) => {
       this.showLoading = show;
     });
   }
